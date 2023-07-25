@@ -11,8 +11,8 @@ RATE_VALUE_DELTA = 0.0005
 
 ex = ccxt.binanceusdm(
     {
-        "apiKey": "0dMzyBDfhO10Q58x5JgMSk95gcZK9HWWdNMLoi68t1UrqpaoodTf5DvZoUMmLH12",
-        "secret": "N6Wwuc15Pbc6gD1YisKso4kumrfJJnv26oqx15W1EblBRc0c28ADniuJAu9jQpNG",
+        "apiKey": "",
+        "secret": "",
     }
 )
 ex.http_proxy = "http://192.168.1.100:1083/"

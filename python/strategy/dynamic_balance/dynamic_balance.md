@@ -4,7 +4,7 @@
 
 1. 价值变动率 r' 与 价格变动 p' 的关系？
 
-   ![formule](./resources/formule.jpg)
+   ![resources](./resources/formule1.jpg)
 
    $\frac{q \cdot p_n}{q\cdot p_n + a} = 0.5 + \Delta r$
 
