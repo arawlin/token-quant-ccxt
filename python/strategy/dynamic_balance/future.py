@@ -27,7 +27,7 @@ RATE_VALUE_DELTA = 0.0005
 MIN_QUANTITY = 0.001
 
 INTERVAL_TICKER = 5
-INTERVAL_OPEN_ORDER_WAIT = 3
+INTERVAL_OPEN_ORDER_WAIT = 1
 
 ex = ccxt.binanceusdm(
     {
@@ -72,7 +72,7 @@ def update_balance_long():
             val = (value_quote - value_base) / 2
 
         print(
-            f"持仓价值: {value_base}, 可用价值: {value_quote}, 价值比: {rate_value}, 可用余额: {bal_free_quote}, 交易量: {volume_total}"
+            f"持仓价值: {value_base}, 可用价值: {value_quote}, 价值比: {rate_value}, 可用余额: {bal_free_quote}, 成交量: {volume_total}"
         )
 
         if order_side == 0:
@@ -113,7 +113,7 @@ def update_balance_long():
             if res_cancel["code"] != "200":
                 continue
 
-            # TODO filled need be added to the volume_total
+            # filled need be added to the volume_total
             info_order = ex.fetch_order(info_order["id"], SYMBOL)
             volume_total += info_order["filled"] * info_order["price"]
 
