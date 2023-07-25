@@ -4,7 +4,6 @@ aiosignal==1.3.1
 async-timeout==4.0.2
 attrs==23.1.0
 ccxt==4.0.38
-certifi @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_2emnmf1qow/croot/certifi_1690232232440/work/certifi
 cffi==1.15.1
 charset-normalizer==3.1.0
 cryptography==40.0.2
