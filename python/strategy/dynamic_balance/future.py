@@ -19,7 +19,7 @@ SYMBOL_QUOTE = "USDT"
 SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
 MARGIN_TYPE = "isolated"
-LEVERAGE = 10
+LEVERAGE = 1
 
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
@@ -48,6 +48,8 @@ volume_total = 0
 
 
 def update_balance_long():
+    global volume_total
+
     try:
         positions = ex.fetch_positions([SYMBOL])
         pos = ccxt.Exchange.filter_by(positions, "side", "long")
@@ -69,6 +71,10 @@ def update_balance_long():
             order_side = 1
             val = (value_quote - value_base) / 2
 
+        print(
+            f"持仓价值: {value_base}, 可用价值: {value_quote}, 价值比: {rate_value}, 可用余额: {bal_free_quote}, 交易量: {volume_total}"
+        )
+
         if order_side == 0:
             return
         if val <= 0:
@@ -81,7 +87,7 @@ def update_balance_long():
             return
         if len(order_book["bids"]) == 0:
             return
-        price_best = order_book["bids"][0]
+        price_best = order_book["bids"][0][0]
 
         # open order
         qty = val / price_best
@@ -92,13 +98,10 @@ def update_balance_long():
         side_position = "LONG"
 
         print(
-            f"持仓价值: {value_base}, 可用价值: {value_quote}, 价值比: {rate_value}, 可用余额: {bal_free_quote}"
-        )
-        print(
             f"价格: {price_best}, 交易量: {qty}, 交易额: {val}, side: {side}, side_position: {side_position}"
         )
 
-        ex.create_order(
+        info_order = ex.create_order(
             SYMBOL, "limit", side, qty, price_best, {"positionSide": side_position}
         )
 
@@ -106,11 +109,15 @@ def update_balance_long():
         while True:
             time.sleep(INTERVAL_OPEN_ORDER_WAIT)
 
-            # TODO filled need be added to the volume_total
-
             res_cancel = ex.cancel_all_orders(SYMBOL)
-            if res_cancel["code"] == "200":
-                break
+            if res_cancel["code"] != "200":
+                continue
+
+            # TODO filled need be added to the volume_total
+            info_order = ex.fetch_order(info_order["id"], SYMBOL)
+            volume_total += info_order["filled"] * info_order["price"]
+
+            break
 
     except Exception as e:
         print(e)
