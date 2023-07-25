@@ -15,14 +15,14 @@ ex = ccxt.binanceusdm(
         "secret": "",
     }
 )
-ex.http_proxy = "http://192.168.1.100:1083/"
-ex.https_proxy = "http://192.168.1.100:1083/"
-ex.verbose = True
+# ex.http_proxy = "http://192.168.1.100:1083/"
+# ex.https_proxy = "http://192.168.1.100:1083/"
+ex.socks_proxy = "socks5://192.168.1.100:1082/"
+# ex.verbose = True
 
 
 def find_balance():
     bals = ex.fetch_balance()
-    print(bals)
     return (
         bals["USDT"]["free"],
         bals["USDT"]["used"],
@@ -45,7 +45,6 @@ def update_balance():
         ) = find_balance()
 
         ticker = ex.fetch_ticker(SYMBOL)
-        print(ticker)
         price = ticker.last
 
         order_direction = 0
