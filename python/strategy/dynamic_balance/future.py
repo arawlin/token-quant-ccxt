@@ -27,7 +27,7 @@ RATE_VALUE_DELTA = 0.0005
 MIN_QUANTITY = 0.001
 
 INTERVAL_TICKER = 5
-INTERVAL_OPEN_ORDER_WAIT = 1
+INTERVAL_OPEN_ORDER_WAIT = 2
 
 ex = ccxt.binanceusdm(
     {
@@ -36,7 +36,7 @@ ex = ccxt.binanceusdm(
     }
 )
 # ex.http_proxy = "http://192.168.1.100:1083/"
-ex.https_proxy = "http://192.168.1.100:1083/"
+# ex.https_proxy = "http://192.168.1.100:1083/"
 # ex.socks_proxy = "socks5://192.168.1.100:1082/"
 # ex.verbose = True
 
