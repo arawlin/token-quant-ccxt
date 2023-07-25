@@ -1,0 +1,193 @@
+{
+  "info": {
+    "feeTier": "0",
+    "canTrade": true,
+    "canDeposit": true,
+    "canWithdraw": true,
+    "updateTime": "0",
+    "multiAssetsMargin": false,
+    "totalInitialMargin": "5.82556361",
+    "totalMaintMargin": "0.23302254",
+    "totalWalletBalance": "109.15042903",
+    "totalUnrealizedProfit": "0.00483619",
+    "totalMarginBalance": "109.15526522",
+    "totalPositionInitialMargin": "5.82556361",
+    "totalOpenOrderInitialMargin": "0.00000000",
+    "totalCrossWalletBalance": "103.34844935",
+    "totalCrossUnPnl": "0.00000000",
+    "availableBalance": "103.34844935",
+    "maxWithdrawAmount": "103.34844935",
+    "assets": [
+      {
+        "asset": "BTC",
+        "walletBalance": "0.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "0.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "0.00000000",
+        "positionInitialMargin": "0.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "maxWithdrawAmount": "0.00000000",
+        "crossWalletBalance": "0.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "0.00000000",
+        "marginAvailable": true,
+        "updateTime": "0"
+      },
+      {
+        "asset": "USDT",
+        "walletBalance": "109.15042903",
+        "unrealizedProfit": "0.00483619",
+        "marginBalance": "109.15526522",
+        "maintMargin": "0.23302254",
+        "initialMargin": "5.82556361",
+        "positionInitialMargin": "5.82556361",
+        "openOrderInitialMargin": "0.00000000",
+        "maxWithdrawAmount": "103.34844935",
+        "crossWalletBalance": "103.34844935",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "103.34844935",
+        "marginAvailable": true,
+        "updateTime": "1690266968109"
+      },
+      ...
+    ],
+    "positions": [
+      {
+        "symbol": "BTCUSDT",
+        "initialMargin": "5.82556361",
+        "maintMargin": "0.23302254",
+        "unrealizedProfit": "0.00483619",
+        "positionInitialMargin": "5.82556361",
+        "openOrderInitialMargin": "0",
+        "leverage": "10",
+        "isolated": true,
+        "entryPrice": "29125.4",
+        "maxNotional": "40000000",
+        "positionSide": "LONG",
+        "positionAmt": "0.002",
+        "notional": "58.25563619",
+        "isolatedWallet": "5.80197968",
+        "updateTime": "1690266968109",
+        "bidNotional": "0",
+        "askNotional": "0"
+      },
+      {
+        "symbol": "BTCUSDT",
+        "initialMargin": "0",
+        "maintMargin": "0",
+        "unrealizedProfit": "0.00000000",
+        "positionInitialMargin": "0",
+        "openOrderInitialMargin": "0",
+        "leverage": "10",
+        "isolated": true,
+        "entryPrice": "0.0",
+        "maxNotional": "40000000",
+        "positionSide": "SHORT",
+        "positionAmt": "0.000",
+        "notional": "0",
+        "isolatedWallet": "0",
+        "updateTime": "1681774089264",
+        "bidNotional": "0",
+        "askNotional": "0"
+      },
+      ...
+    ]
+  },
+  "BTC": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "ADA": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "XRP": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "TUSD": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "DOT": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "BNB": {
+    "free": 1.1e-7,
+    "used": 0.0,
+    "total": 1.1e-7
+  },
+  "ETH": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "USDT": {
+    "free": 103.34844935,
+    "used": 5.82556361,
+    "total": 109.15526522
+  },
+  "USDP": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "USDC": {
+    "free": 0.0,
+    "used": 0.0,
+    "total": 0.0
+  },
+  "BUSD": {
+    "free": 0.00869454,
+    "used": 0.0,
+    "total": 0.00869454
+  },
+  "timestamp": null,
+  "datetime": null,
+  "free": {
+    "BTC": 0.0,
+    "ADA": 0.0,
+    "XRP": 0.0,
+    "TUSD": 0.0,
+    "DOT": 0.0,
+    "BNB": 1.1e-7,
+    "ETH": 0.0,
+    "USDT": 103.34844935,
+    "USDP": 0.0,
+    "USDC": 0.0,
+    "BUSD": 0.00869454
+  },
+  "used": {
+    "BTC": 0.0,
+    "ADA": 0.0,
+    "XRP": 0.0,
+    "TUSD": 0.0,
+    "DOT": 0.0,
+    "BNB": 0.0,
+    "ETH": 0.0,
+    "USDT": 5.82556361,
+    "USDP": 0.0,
+    "USDC": 0.0,
+    "BUSD": 0.0
+  },
+  "total": {
+    "BTC": 0.0,
+    "ADA": 0.0,
+    "XRP": 0.0,
+    "TUSD": 0.0,
+    "DOT": 0.0,
+    "BNB": 1.1e-7,
+    "ETH": 0.0,
+    "USDT": 109.15526522,
+    "USDP": 0.0,
+    "USDC": 0.0,
+    "BUSD": 0.00869454
+  }
+}

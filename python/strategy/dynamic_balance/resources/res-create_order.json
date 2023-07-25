@@ -1,0 +1,61 @@
+{
+  "info": {
+    "orderId": "174670045933",
+    "symbol": "BTCUSDT",
+    "status": "NEW",
+    "clientOrderId": "x-xcKtGhcu8c4ea06aff83e3fe255ebb",
+    "price": "29179.70",
+    "avgPrice": "0.00",
+    "origQty": "0.002",
+    "executedQty": "0.000",
+    "cumQty": "0.000",
+    "cumQuote": "0.00000",
+    "timeInForce": "GTC",
+    "type": "LIMIT",
+    "reduceOnly": false,
+    "closePosition": false,
+    "side": "BUY",
+    "positionSide": "LONG",
+    "stopPrice": "0.00",
+    "workingType": "CONTRACT_PRICE",
+    "priceProtect": false,
+    "origType": "LIMIT",
+    "updateTime": "1690281063241"
+  },
+  "id": "174670045933",
+  "clientOrderId": "x-xcKtGhcu8c4ea06aff83e3fe255ebb",
+  "timestamp": 1690281063241,
+  "datetime": "2023-07-25T10:31:03.241Z",
+  "lastTradeTimestamp": null,
+  "lastUpdateTimestamp": 1690281063241,
+  "symbol": "BTC/USDT:USDT",
+  "type": "limit",
+  "timeInForce": "GTC",
+  "postOnly": false,
+  "reduceOnly": false,
+  "side": "buy",
+  "price": 29179.7,
+  "triggerPrice": null,
+  "amount": 0.002,
+  "cost": 0.0,
+  "average": null,
+  "filled": 0.0,
+  "remaining": 0.002,
+  "status": "open",
+  "fee": {
+    "currency": null,
+    "cost": null,
+    "rate": null
+  },
+  "trades": [],
+  "fees": [
+    {
+      "currency": null,
+      "cost": null,
+      "rate": null
+    }
+  ],
+  "stopPrice": null,
+  "takeProfitPrice": null,
+  "stopLossPrice": null
+}
