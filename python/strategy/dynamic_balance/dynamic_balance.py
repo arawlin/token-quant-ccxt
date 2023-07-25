@@ -9,7 +9,7 @@ INTERVAL_TICKER = 10
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
 
-ex = ccxt.binanceusdm(
+ex = ccxt.binance(
     {
         "apiKey": "",
         "secret": "",
