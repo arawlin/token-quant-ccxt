@@ -27,6 +27,7 @@ RATE_VALUE_DELTA = 0.0005
 MIN_QUANTITY = 0.001
 
 INTERVAL_TICKER = 5
+INTERVAL_TICKER_QUICK_RATE = 2
 INTERVAL_OPEN_ORDER_WAIT = 2
 
 ex = ccxt.binanceusdm(
@@ -45,10 +46,12 @@ ex.set_leverage(LEVERAGE, SYMBOL)
 # ex.set_position_mode(hedged=True, symbol=SYMBOL)
 
 volume_total = 0
+interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
 
 
 def update_balance_long():
     global volume_total
+    global interval_ticker_cur
 
     try:
         positions = ex.fetch_positions([SYMBOL])
@@ -119,6 +122,9 @@ def update_balance_long():
 
             break
 
+        # XXX the interval will be quick when trading
+        interval_ticker_cur = INTERVAL_TICKER / INTERVAL_TICKER_QUICK_RATE
+
     except Exception as e:
         print(e)
 
@@ -126,4 +132,5 @@ def update_balance_long():
 if __name__ == "__main__":
     while 1:
         update_balance_long()
-        time.sleep(INTERVAL_TICKER)
+        time.sleep(interval_ticker_cur)
+        interval_ticker_cur = INTERVAL_TICKER
