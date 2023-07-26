@@ -20,6 +20,7 @@ SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
 MARGIN_TYPE = "isolated"
 LEVERAGE = 1
+SIDE_POSITION = "long"
 
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
@@ -49,36 +50,35 @@ volume_total = 0
 interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
 
 
-def update_balance_long():
+def update_balance(side_position="long"):
     global volume_total
     global interval_ticker_cur
 
     try:
         positions = ex.fetch_positions([SYMBOL])
-        pos = ccxt.Exchange.filter_by(positions, "side", "long")
-        value_base = pos[0]["notional"] if len(pos) > 0 else 0
+        pos = ccxt.Exchange.filter_by(positions, "side", side_position)
+        value_base = pos[0]["collateral"] if len(pos) > 0 else 0
+        value_base *= LEVERAGE
 
         balances = ex.fetch_balance()
         bal_free_quote = balances[SYMBOL_QUOTE]["free"]
         value_quote = bal_free_quote * LEVERAGE
 
-        order_side = 0
+        side_order = ""
         val = 0
         rate_value = value_base / (value_base + value_quote)
         if rate_value > RATE_VALUE_MID + RATE_VALUE_DELTA:
-            # sell
-            order_side = -1
+            side_order = "sell" if side_position == "long" else "buy"
             val = (value_base - value_quote) / 2
         elif rate_value < RATE_VALUE_MID - RATE_VALUE_DELTA:
-            # buy
-            order_side = 1
+            side_order = "buy" if side_position == "long" else "sell"
             val = (value_quote - value_base) / 2
 
         print(
             f"持仓价值: {value_base}, 可用价值: {value_quote}, 价值比: {rate_value}, 可用余额: {bal_free_quote}, 成交量: {volume_total}"
         )
 
-        if order_side == 0:
+        if not side_order:
             return
         if val <= 0:
             print(f"平衡量错误 {val}")
@@ -88,24 +88,33 @@ def update_balance_long():
         order_book = ex.fetch_order_book(SYMBOL, 10)
         if not order_book:
             return
-        if len(order_book["bids"]) == 0:
+        if len(order_book["bids"]) == 0 or len(order_book["asks"]) == 0:
             return
-        price_best = order_book["bids"][0][0]
+
+        price_best = (
+            order_book["bids"][0][0]
+            if side_order == "buy"
+            else order_book["asks"][0][0]
+        )
+        if not price_best:
+            return
 
         # open order
         qty = val / price_best
         if qty < MIN_QUANTITY:
             return
 
-        side = "buy" if order_side > 0 else "sell"
-        side_position = "LONG"
-
         print(
-            f"价格: {price_best}, 交易量: {qty}, 交易额: {val}, side: {side}, side_position: {side_position}"
+            f"价格: {price_best}, 交易量: {qty}, 交易额: {val}, side_order: {side_order}, side_position: {side_position.upper()}"
         )
 
         info_order = ex.create_order(
-            SYMBOL, "limit", side, qty, price_best, {"positionSide": side_position}
+            SYMBOL,
+            "limit",
+            side_order,
+            qty,
+            price_best,
+            {"positionSide": side_position.upper()},
         )
 
         # cancel all order
@@ -131,6 +140,6 @@ def update_balance_long():
 
 if __name__ == "__main__":
     while 1:
-        update_balance_long()
+        update_balance(SIDE_POSITION)
         time.sleep(interval_ticker_cur)
         interval_ticker_cur = INTERVAL_TICKER
