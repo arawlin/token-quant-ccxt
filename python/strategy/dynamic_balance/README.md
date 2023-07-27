@@ -1,10 +1,21 @@
 # dynamic balance
 
+## variant
+
+- [ ] 预判价格是否处于低位，最大涨幅
+
+  - 价值比按幅度进行变化
+  - 设置止损价
+
+- [ ] 提前挂单
+  - 设置区间
+  - 持有的币的价值相等
+
 ## question
 
 1. 价值变动率 r' 与 价格变动 p' 的关系？
 
-   ![resources](./resources/formule1.jpg)
+   ![formule2](./resources/formule1.jpg)
 
    $\frac{q \cdot p_n}{q\cdot p_n + a} = 0.5 + \Delta r$
 
@@ -13,6 +24,10 @@
    $\Delta p = 1 - \frac{a \cdot (0.5 + r)}{q \cdot (0.5 - r) \cdot p_o}$
 
 2. 当价格下跌买入的，是否会在价格上涨但是价格没有回到原来位置时，将买入的以这个价格卖出，这样的话，将会导致亏损，会这样吗？
+
+3. 提前挂单量的计算
+
+  ![formule2](resources/formule2.jpg)
 
 ## formula
 
