@@ -27,7 +27,11 @@
 
 3. 提前挂单量的计算
 
-  ![formule2](resources/formule2.jpg)
+   ![formule2](resources/formule2.jpg)
+
+   $\Delta a = \frac{a \cdot r_p}{2}$
+
+   $\Delta q = \frac{a \cdot r_p}{2 \cdot p \cdot (1 + r_p)}$
 
 ## formula
 
