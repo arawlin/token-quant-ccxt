@@ -6,8 +6,8 @@ sys.path.append(root + '/python')
 import ccxt
 
 exchange = ccxt.binance ({
-    'apiKey': '6hybk6cBoueRQSgfuHwJ7ZazPt9Kk7GirvuoUYL1AtbNRBxwpfVFobp6Ce1ZSgQe',
-    'secret': 'ttE2H0LvMpNvkRWc2x9KZ4hwTI2WEZK0bBIPkWXlZgVyKffmzb4c3k0bvyrpPzEF',
+    'apiKey': '',
+    'secret': '',
 })
 
 TickInterval = 280
