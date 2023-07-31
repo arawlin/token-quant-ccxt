@@ -231,16 +231,25 @@ def place_grids(ex, side_position="long"):
         print(e)
 
 
-def check_balance():
+def check_balance(ex, side_position="long"):
     try:
-        return
+        positions = ex.fetch_positions([SYMBOL])
+        pos = ccxt.Exchange.filter_by(positions, "side", side_position)
+        value_base = pos[0]["collateral"] if len(pos) > 0 else 0
+        value_base *= LEVERAGE
+        log_object(positions)
+
+        # balances = ex.fetch_balance()
+        # bal_free_quote = balances[SYMBOL_QUOTE]["free"]
+        # value_quote = bal_free_quote * LEVERAGE
     except Exception as e:
         print(e)
 
 
 if __name__ == "__main__":
     ex = init()
-    place_grids(ex)
+    # place_grids(ex)
+    check_balance(ex)
     # while 1:
     #     update_balance(ex, SIDE_POSITION)
     #     time.sleep(interval_ticker_cur)
