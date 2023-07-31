@@ -13,34 +13,15 @@ import time
 import ccxt
 
 from lib import log_object
+import strategy.common as common
 
-SYMBOL_BASE = "BTC"
+SYMBOL_BASE = "LTC"
 SYMBOL_QUOTE = "USDT"
 SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
 MARGIN_TYPE = "isolated"
-LEVERAGE = 1
-SIDE_POSITION = "long"
-
-
-def init():
-    ex = ccxt.binanceusdm(
-        {
-            "apiKey": os.getenv("API_KEY"),
-            "secret": os.getenv("API_SECRET"),
-        }
-    )
-    # ex.http_proxy = "http://192.168.1.100:1083/"
-    # ex.https_proxy = "http://192.168.1.100:1083/"
-    # ex.socks_proxy = "socks5://192.168.1.100:1082/"
-    # ex.verbose = True
-
-    ex.set_margin_mode(MARGIN_TYPE, SYMBOL)
-    ex.set_leverage(LEVERAGE, SYMBOL)
-    # ex.set_position_mode(hedged=True, symbol=SYMBOL)
-
-    return ex
-
+LEVERAGE = 10
+SIDE_POSITION = "long"  # long, short
 
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
@@ -53,6 +34,25 @@ INTERVAL_OPEN_ORDER_WAIT = 2
 
 volume_total = 0
 interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
+
+
+def init():
+    ex = ccxt.binanceusdm(
+        {
+            "apiKey": os.getenv("API_KEY"),
+            "secret": os.getenv("API_SECRET"),
+        }
+    )
+    # ex.http_proxy = "http://192.168.1.100:1083/"
+    # ex.https_proxy = "http://192.168.1.100:1083/"
+    ex.socks_proxy = "socks5://192.168.1.100:1082/"
+    # ex.verbose = True
+
+    ex.set_margin_mode(MARGIN_TYPE, SYMBOL)
+    ex.set_leverage(LEVERAGE, SYMBOL)
+    # ex.set_position_mode(hedged=True, symbol=SYMBOL)
+
+    return ex
 
 
 def update_balance(ex, side_position="long"):
@@ -123,18 +123,11 @@ def update_balance(ex, side_position="long"):
         )
 
         # cancel all order
-        while True:
-            time.sleep(INTERVAL_OPEN_ORDER_WAIT)
+        common.cancel_order_all(ex, SYMBOL)
 
-            res_cancel = ex.cancel_all_orders(SYMBOL)
-            if res_cancel["code"] != "200":
-                continue
-
-            # filled need be added to the volume_total
-            info_order = ex.fetch_order(info_order["id"], SYMBOL)
-            volume_total += info_order["filled"] * info_order["price"]
-
-            break
+        # filled need be added to the volume_total
+        info_order = ex.fetch_order(info_order["id"], SYMBOL)
+        volume_total += info_order["filled"] * info_order["price"]
 
         # XXX the interval will be quick when trading
         interval_ticker_cur = INTERVAL_TICKER / INTERVAL_TICKER_QUICK_RATE
@@ -158,7 +151,7 @@ def calc_grid_price(price, rate, num):
 def calc_grid_quantity(price, rate, amount, num, grids):
     num -= 1
     if num < 0:
-        return
+        return amount
 
     price = price * (1 + rate)
 
@@ -168,23 +161,87 @@ def calc_grid_quantity(price, rate, amount, num, grids):
     q = -(a / price)
 
     grids.append([price, q])
-    calc_grid_quantity(price, rate, amount, num, grids)
+    return calc_grid_quantity(price, rate, amount, num, grids)
+
+
+RATE_PRICE_GRID = 0.002
+NUM_GRID = 10
+SYMBOL_SIDE_GRID = ["high", "low"]
+
+
+def place_grids_action(ex, price, value, side_grid="high", side_position="long"):
+    grids = []
+    rate = RATE_PRICE_GRID if side_grid == "high" else -RATE_PRICE_GRID
+    value_need = calc_grid_quantity(price, rate, value, NUM_GRID, grids)
+    print(f"grids: {grids}")
+
+    if len(grids) != NUM_GRID:
+        print("grids error 1")
+        return False
+    if value < value_need:
+        print("grids error 2")
+        return False
+
+    side_order = ""
+    if side_grid == "high":
+        side_order = "sell" if side_position == "long" else "buy"
+    if side_grid == "low":
+        side_order = "buy" if side_position == "long" else "sell"
+    if not side_grid:
+        print("grids error 3")
+        return False
+
+    print(
+        f"价格:${price}, 所需价值: {value_need}, side_grid: {side_grid}, side_order: {side_order}, side_position: {side_position}"
+    )
+
+    for i in grids:
+        ex.create_order(
+            SYMBOL,
+            "limit",
+            side_order,
+            i[1],
+            i[0],
+            {"positionSide": side_position.upper()},
+        )
+
+    return True
+
+
+def place_grids(ex, side_position="long"):
+    try:
+        common.cancel_order_all(ex, SYMBOL)
+
+        ticker = ex.fetch_ticker(SYMBOL)
+        price = ticker["last"]
+
+        balances = ex.fetch_balance()
+        bal_free_quote = balances[SYMBOL_QUOTE]["free"]
+        value = bal_free_quote * LEVERAGE
+
+        is_succ_high = place_grids_action(ex, price, value, "high", side_position)
+        is_succ_low = place_grids_action(ex, price, value, "low", side_position)
+
+        if not is_succ_high or not is_succ_low:
+            return
+
+        # next stage
+
+    except Exception as e:
+        print(e)
+
+
+def check_balance():
+    try:
+        return
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
-    # print(calc_grid_price(1000, 0.01, 10))
-    # print(calc_grid_price(1000, -0.01, 10))
-
-    # grids = []
-    # calc_grid_quantity(1000, 0.01, 1000, 10, grids)
-    # print(len(grids), grids)
-
-    # grids = []
-    # calc_grid_quantity(1000, -0.01, 1000, 10, grids)
-    # print(grids)
-
     ex = init()
-    while 1:
-        update_balance(ex, SIDE_POSITION)
-        time.sleep(interval_ticker_cur)
-        interval_ticker_cur = INTERVAL_TICKER
+    place_grids(ex)
+    # while 1:
+    #     update_balance(ex, SIDE_POSITION)
+    #     time.sleep(interval_ticker_cur)
+    #     interval_ticker_cur = INTERVAL_TICKER
