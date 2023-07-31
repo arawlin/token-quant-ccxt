@@ -45,7 +45,7 @@ def init():
     )
     # ex.http_proxy = "http://192.168.1.100:1083/"
     # ex.https_proxy = "http://192.168.1.100:1083/"
-    ex.socks_proxy = "socks5://192.168.1.100:1082/"
+    # ex.socks_proxy = "socks5://192.168.1.100:1082/"
     # ex.verbose = True
 
     ex.set_margin_mode(MARGIN_TYPE, SYMBOL)
@@ -231,17 +231,29 @@ def place_grids(ex, side_position="long"):
         print(e)
 
 
+old_pos_contracts = 0
+
+
 def check_balance(ex, side_position="long"):
+    global old_pos_contracts
+
     try:
         positions = ex.fetch_positions([SYMBOL])
         pos = ccxt.Exchange.filter_by(positions, "side", side_position)
-        value_base = pos[0]["collateral"] if len(pos) > 0 else 0
-        value_base *= LEVERAGE
-        log_object(positions)
+        pos_contracts = pos[0]["contracts"] if len(pos) > 0 else 0
 
-        # balances = ex.fetch_balance()
-        # bal_free_quote = balances[SYMBOL_QUOTE]["free"]
-        # value_quote = bal_free_quote * LEVERAGE
+        if old_pos_contracts == 0:
+            old_pos_contracts = pos_contracts
+            return
+
+        # position would really be changed to more or less when contracts changed
+        if pos_contracts == old_pos_contracts:
+            return
+
+        # next stage
+
+        old_pos_contracts = 0
+
     except Exception as e:
         print(e)
 
