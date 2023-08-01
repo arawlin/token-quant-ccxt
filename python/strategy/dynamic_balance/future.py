@@ -15,7 +15,11 @@ import ccxt
 from lib import log_object
 import strategy.common as common
 
-SYMBOL_BASE = "LTC"
+INTERVAL_TICKER = 5
+INTERVAL_TICKER_QUICK_RATE = 2
+INTERVAL_OPEN_ORDER_WAIT = 2
+
+SYMBOL_BASE = "ETH"
 SYMBOL_QUOTE = "USDT"
 SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
@@ -26,11 +30,12 @@ SIDE_POSITION = "long"  # long, short
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
 
-MIN_QUANTITY = 0.001
+MIN_QUANTITY = 0.003
 
-INTERVAL_TICKER = 5
-INTERVAL_TICKER_QUICK_RATE = 2
-INTERVAL_OPEN_ORDER_WAIT = 2
+RATE_PRICE_GRID = 0.01
+NUM_GRID = 2
+SYMBOL_SIDE_GRID = ["high", "low"]
+
 
 volume_total = 0
 interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
@@ -177,11 +182,6 @@ def calc_grid_quantity(price, rate, amount, num, grids):
     return calc_grid_quantity(price, rate, amount, num, grids)
 
 
-RATE_PRICE_GRID = 0.002
-NUM_GRID = 10
-SYMBOL_SIDE_GRID = ["high", "low"]
-
-
 def place_grids_action(ex, price, value, side_grid="high", side_position="long"):
     grids = []
     rate = RATE_PRICE_GRID if side_grid == "high" else -RATE_PRICE_GRID
@@ -192,7 +192,7 @@ def place_grids_action(ex, price, value, side_grid="high", side_position="long")
         print("grids error 1")
         return False
     if value < value_need:
-        print("grids error 2")
+        print(f"grids error 2, value: {value}, value_need: {value_need}")
         return False
 
     side_order = ""
@@ -209,6 +209,10 @@ def place_grids_action(ex, price, value, side_grid="high", side_position="long")
     )
 
     for i in grids:
+        if i[1] < MIN_QUANTITY:
+            print(f"grids error 4, qty: {i[1]} less than MIN_QUANTITY: {MIN_QUANTITY}")
+            return False
+
         ex.create_order(
             SYMBOL,
             "limit",
@@ -233,6 +237,8 @@ def place_grids(ex, side_position="long"):
         bal_free_quote = balances[SYMBOL_QUOTE]["free"]
         value = bal_free_quote * LEVERAGE
 
+        print(f"state: {state}, price: {price}, value: {value}")
+
         is_succ_high = place_grids_action(ex, price, value, "high", side_position)
         is_succ_low = place_grids_action(ex, price, value, "low", side_position)
 
@@ -241,6 +247,8 @@ def place_grids(ex, side_position="long"):
 
         # next stage
         state = 2
+
+        print(f"next state: {state}")
 
     except Exception as e:
         print(e)
@@ -267,12 +275,19 @@ def check_balance(ex, side_position="long"):
         state = 0
         old_pos_contracts = 0
 
+        common.cancel_order_all(ex, SYMBOL)
+
+        print(
+            f"next state: {state}, pos_contracts: {pos_contracts}, old_pos_contracts: {old_pos_contracts}"
+        )
+
     except Exception as e:
         print(e)
 
 
 if __name__ == "__main__":
     ex = init()
+    common.cancel_order_all(ex, SYMBOL)
     while 1:
         if state == 0:
             update_balance(ex, SIDE_POSITION)
