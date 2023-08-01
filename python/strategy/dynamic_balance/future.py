@@ -35,6 +35,13 @@ INTERVAL_OPEN_ORDER_WAIT = 2
 volume_total = 0
 interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
 
+# 0: balance
+# 1: place
+# 2: check
+state = 0
+
+old_pos_contracts = 0
+
 
 def init():
     ex = ccxt.binanceusdm(
@@ -58,6 +65,7 @@ def init():
 def update_balance(ex, side_position="long"):
     global volume_total
     global interval_ticker_cur
+    global state
 
     try:
         positions = ex.fetch_positions([SYMBOL])
@@ -78,6 +86,9 @@ def update_balance(ex, side_position="long"):
         elif rate_value < RATE_VALUE_MID - RATE_VALUE_DELTA:
             side_order = "buy" if side_position == "long" else "sell"
             val = (value_quote - value_base) / 2
+        else:
+            # already balanced
+            state = 1
 
         print(
             f"持仓价值: {value_base}, 可用价值: {value_quote}, 价值比: {rate_value}, 可用余额: {bal_free_quote}, 成交量: {volume_total}"
@@ -107,6 +118,8 @@ def update_balance(ex, side_position="long"):
         # open order
         qty = val / price_best
         if qty < MIN_QUANTITY:
+            # already balanced
+            state = 1
             return
 
         print(
@@ -209,6 +222,7 @@ def place_grids_action(ex, price, value, side_grid="high", side_position="long")
 
 
 def place_grids(ex, side_position="long"):
+    global state
     try:
         common.cancel_order_all(ex, SYMBOL)
 
@@ -226,15 +240,14 @@ def place_grids(ex, side_position="long"):
             return
 
         # next stage
+        state = 2
 
     except Exception as e:
         print(e)
 
 
-old_pos_contracts = 0
-
-
 def check_balance(ex, side_position="long"):
+    global state
     global old_pos_contracts
 
     try:
@@ -251,7 +264,7 @@ def check_balance(ex, side_position="long"):
             return
 
         # next stage
-
+        state = 0
         old_pos_contracts = 0
 
     except Exception as e:
@@ -260,9 +273,13 @@ def check_balance(ex, side_position="long"):
 
 if __name__ == "__main__":
     ex = init()
-    # place_grids(ex)
-    check_balance(ex)
-    # while 1:
-    #     update_balance(ex, SIDE_POSITION)
-    #     time.sleep(interval_ticker_cur)
-    #     interval_ticker_cur = INTERVAL_TICKER
+    while 1:
+        if state == 0:
+            update_balance(ex, SIDE_POSITION)
+        elif state == 1:
+            place_grids(ex, SIDE_POSITION)
+        elif state == 2:
+            check_balance(ex, SIDE_POSITION)
+
+        time.sleep(interval_ticker_cur)
+        interval_ticker_cur = INTERVAL_TICKER
