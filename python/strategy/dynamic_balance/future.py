@@ -15,31 +15,29 @@ import ccxt
 from lib import log_object
 import strategy.common as common
 
-INTERVAL_TICKER = 5
-INTERVAL_TICKER_QUICK_RATE = 2
-INTERVAL_OPEN_ORDER_WAIT = 2
-
-SYMBOL_BASE = "ETH"
+SYMBOL_BASE = "LTC"
 SYMBOL_QUOTE = "USDT"
 SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
-MARGIN_TYPE = "isolated"
-LEVERAGE = 1
+MARGIN_TYPE = "cross"  # cross, isolated
 SIDE_POSITION = "long"  # long, short
+LEVERAGE = 10
 
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
 
-MIN_QUANTITY = 0.003
+MIN_QUANTITY = 0.06
 
-RATE_PRICE_GRID = 0.002
+RATE_PRICE_GRID = 0.01
 NUM_GRID = 10
-SYMBOL_SIDE_GRID = ["high", "low"]
 
+
+INTERVAL_TICKER = 5
+INTERVAL_TICKER_QUICK_RATE = 2
+INTERVAL_OPEN_ORDER_WAIT = 2
 
 volume_total = 0
 interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
-
 # 0: balance
 # 1: place
 # 2: check
@@ -58,6 +56,7 @@ def init():
     # ex.http_proxy = "http://192.168.1.100:1083/"
     # ex.https_proxy = "http://192.168.1.100:1083/"
     # ex.socks_proxy = "socks5://192.168.1.100:1082/"
+    # ex.socks_proxy = "socks5://localhost:1080/"
     # ex.verbose = True
 
     ex.set_margin_mode(MARGIN_TYPE, SYMBOL)
