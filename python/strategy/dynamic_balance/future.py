@@ -21,14 +21,14 @@ SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
 MARGIN_TYPE = "cross"  # cross, isolated
 SIDE_POSITION = "long"  # long, short
-LEVERAGE = 10
+LEVERAGE = 5
 
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
 
 MIN_QUANTITY = 0.06
 
-RATE_PRICE_GRID = 0.01
+RATE_PRICE_GRID = 0.001
 NUM_GRID = 10
 
 
@@ -74,7 +74,7 @@ def update_balance(ex, side_position="long"):
     try:
         positions = ex.fetch_positions([SYMBOL])
         pos = ccxt.Exchange.filter_by(positions, "side", side_position)
-        value_base = pos[0]["collateral"] if len(pos) > 0 else 0
+        value_base = pos[0]["initialMargin"] if len(pos) > 0 else 0
         value_base *= LEVERAGE
 
         balances = ex.fetch_balance()
@@ -183,7 +183,12 @@ def calc_grid_quantity(price, rate, amount, num, grids):
 
 def place_grids_action(ex, price, value, side_grid="high", side_position="long"):
     grids = []
-    rate = RATE_PRICE_GRID if side_grid == "high" else -RATE_PRICE_GRID
+    rate = 0
+    if side_position == "long":
+        rate = RATE_PRICE_GRID if side_grid == "high" else -RATE_PRICE_GRID
+    if side_position == "short":
+        rate = -RATE_PRICE_GRID if side_grid == "high" else RATE_PRICE_GRID
+
     value_final = calc_grid_quantity(price, rate, value, NUM_GRID, grids)
     value_need = abs(value_final - value)
     print(f"grids: {grids}")
@@ -287,9 +292,27 @@ def check_balance(ex, side_position="long"):
         print(e)
 
 
+def cal_value_quote_need(ex):
+    """
+    计算最低所需交易额
+    """
+    ticker = ex.fetch_ticker(SYMBOL)
+    price = ticker["last"]
+
+    value_quote = 2 * MIN_QUANTITY * price / RATE_PRICE_GRID / LEVERAGE
+    value_quote *= 2  # 上面只是计算了平衡后，所需的额度，所以总额度应该乘以2
+
+    print(
+        f"value_quote_need - {value_quote}, LEVERAGE: {LEVERAGE}, price: {price}, MIN_QUANTITY: {MIN_QUANTITY}, RATE_PRICE_GRID: {RATE_PRICE_GRID}"
+    )
+
+
 if __name__ == "__main__":
     ex = init()
     common.cancel_order_all(ex, SYMBOL)
+
+    # cal_value_quote_need(ex)
+    # exit(0)
     while 1:
         if state == 0:
             update_balance(ex, SIDE_POSITION)
