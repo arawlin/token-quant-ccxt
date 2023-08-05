@@ -15,27 +15,30 @@ import ccxt
 from lib import log_object
 import strategy.common as common
 
-SYMBOL_BASE = "LTC"
+SYMBOL_BASE = "DOGE"
 SYMBOL_QUOTE = "USDT"
-SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
-MARGIN_TYPE = "cross"  # cross, isolated
-SIDE_POSITION = "long"  # long, short
-LEVERAGE = 5
+SIDE_POSITION = "long"  # 开仓方向：long, short
+LEVERAGE = 10  # 杠杆倍数
+
+RATE_PRICE_GRID = 0.02  # 每格价格变化率
+NUM_GRID = 10  # 格数
+
+MARGIN_TYPE = "cross"  # 保证金类型：cross - 全仓, isolated - 逐仓
+POSITION_TYPE = True  # 仓位模式: True - 双向持仓, False - 单向持仓
+
+# constant
+SYMBOL = SYMBOL_BASE + "/" + SYMBOL_QUOTE + ":USDT"
 
 RATE_VALUE_MID = 0.5
 RATE_VALUE_DELTA = 0.0005
-
-MIN_QUANTITY = 0.06
-
-RATE_PRICE_GRID = 0.001
-NUM_GRID = 10
-
 
 INTERVAL_TICKER = 5
 INTERVAL_TICKER_QUICK_RATE = 2
 INTERVAL_OPEN_ORDER_WAIT = 2
 
+# var
+min_quantity = 0  # 最小交易量
 volume_total = 0
 interval_ticker_cur = INTERVAL_TICKER  # the interval will be quick when trading
 # 0: balance
@@ -47,6 +50,8 @@ old_pos_contracts = 0
 
 
 def init():
+    global min_quantity
+
     ex = ccxt.binanceusdm(
         {
             "apiKey": os.getenv("API_KEY"),
@@ -61,7 +66,10 @@ def init():
 
     ex.set_margin_mode(MARGIN_TYPE, SYMBOL)
     ex.set_leverage(LEVERAGE, SYMBOL)
-    # ex.set_position_mode(hedged=True, symbol=SYMBOL)
+    # ex.set_position_mode(hedged=POSITION_TYPE, symbol=SYMBOL)
+
+    min_quantity = common.market_info_min_qty(ex, SYMBOL)
+    print(f"symbol: {SYMBOL}, min_quantity: {min_quantity}")
 
     return ex
 
@@ -121,7 +129,7 @@ def update_balance(ex, side_position="long"):
 
         # open order
         qty = val / price_best
-        if qty < MIN_QUANTITY:
+        if qty < min_quantity:
             # already balanced
             state = 1
             return
@@ -216,8 +224,8 @@ def place_grids_action(ex, price, value, side_grid="high", side_position="long")
     for i in grids:
         price_place = i[0]
         qty = abs(i[1])
-        if qty < MIN_QUANTITY:
-            print(f"grids error 4, qty: {qty} less than MIN_QUANTITY: {MIN_QUANTITY}")
+        if qty < min_quantity:
+            print(f"grids error 4, qty: {qty} less than MIN_QUANTITY: {min_quantity}")
             return False
 
         ex.create_order(
@@ -299,11 +307,11 @@ def cal_value_quote_need(ex):
     ticker = ex.fetch_ticker(SYMBOL)
     price = ticker["last"]
 
-    value_quote = 2 * MIN_QUANTITY * price / RATE_PRICE_GRID / LEVERAGE
+    value_quote = 2 * min_quantity * price / RATE_PRICE_GRID / LEVERAGE
     value_quote *= 2  # 上面只是计算了平衡后，所需的额度，所以总额度应该乘以2
 
     print(
-        f"value_quote_need - {value_quote}, LEVERAGE: {LEVERAGE}, price: {price}, MIN_QUANTITY: {MIN_QUANTITY}, RATE_PRICE_GRID: {RATE_PRICE_GRID}"
+        f"value_quote_need - {value_quote}, LEVERAGE: {LEVERAGE}, price: {price}, MIN_QUANTITY: {min_quantity}, RATE_PRICE_GRID: {RATE_PRICE_GRID}"
     )
 
 
